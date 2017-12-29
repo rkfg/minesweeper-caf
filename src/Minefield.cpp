@@ -122,21 +122,27 @@ void Minefield::dump_minefield(const bool full) {
         for (int x = 0; x < state.width; ++x) {
             auto& elem = get_mine(x, y);
             if (elem.has_mine && full) {
-                aout(this) << "\uff38";
+                aout(this) << MINE;
             } else if (elem.mines_around > 0) {
                 aout(this) << m_mnums[elem.mines_around - 1];
             } else if (elem.is_opened) {
-                aout(this) << "\uff0e";
+                aout(this) << OPENED;
             } else if (elem.has_flag) {
-                aout(this) << "\uff26";
+                aout(this) << FLAG;
             } else {
-                aout(this) << "\uff3f";
+                aout(this) << CLOSED;
             }
+#ifdef SEPARATOR
+            aout(this) << SEPARATOR;
+#endif
         }
         aout(this) << " " << y + 1 << endl;
     }
     for (int x = 0; x < state.width; ++x) {
         aout(this) << m_xaxis[x];
+#ifdef SEPARATOR
+        aout(this) << SEPARATOR;
+#endif
     }
     aout(this) << endl << endl;
 }
