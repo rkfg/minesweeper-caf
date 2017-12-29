@@ -50,22 +50,23 @@ minefield_actor_t::behavior_type Minefield::make_behavior() {
             state.width = width;
             state.height = height;
             state.field.clear();
-            state.field.resize(width*height);
-            state.cnt = width*height - mines_count;
+            state.field.resize(width * height - 1);
+            state.empty_cells = width * height - mines_count;
             for (int i = 0; i < mines_count; ++i) {
                 state.field[i].has_mine = true;
             }
             shuffle(state.field.begin(), state.field.end(), rnd);
             aout(this) << "Created a minefield " << width << "x" << height << " with " << mines_count << " mines." << endl;
             return unit;
-        }, [=](open_atom, uint8_t x, uint8_t y) -> result<minefield_result> {
+        }, [=](open_atom, bool player, uint8_t x, uint8_t y) -> result<minefield_result> {
+            if (!state.first_move) {
+                state.field.insert(state.field.begin() + y * state.width + x, Mine());
+                state.first_move = true;
+            }
             if (!coords_valid(x, y)) {
                 return minefield_error::invalid_coords;
             }
             auto& mine = get_mine(x, y);
-            if (mine.is_opened) {
-                return minefield_error::already_opened;
-            }
             if (mine.has_flag) {
                 return minefield_error::has_flag;
             }
@@ -74,22 +75,31 @@ minefield_actor_t::behavior_type Minefield::make_behavior() {
                 anon_send(this, dump_atom::value, true);
                 return minefield_result::kaboom;
             }
+            if (mine.is_opened) {
+                dec_deferred_opening();
+                return minefield_error::already_opened;
+            }
             mine.is_opened = true;
             auto a = mines_around(x, y);
             if (!a) {
                 open_around(x, y);
             } else {
                 mine.mines_around = a;
+                if (player) { // opened a cell with neighboring mines, dump the field immediately
+                    send(this, dump_atom::value, false);
+                }
             }
-            --state.cnt;
-            if (!state.cnt) {
+            if (!player) { // only decrease the counter for auto-opened cells
+                dec_deferred_opening();
+            }
+            --state.empty_cells;
+            if (!state.empty_cells) {
                 aout(this) << "V I C T O R Y" << endl;
                 send(this, dump_atom::value, true);
                 return minefield_result::victory;
             }
-            send(this, dump_atom::value, false);
             return minefield_result::ok;
-        }, [=](dump_atom, bool full) -> void {
+        }, [=](dump_atom, bool full) {
             dump_minefield(full);
         }, [=](flag_atom, uint8_t x, uint8_t y) -> result<void> {
             if (!coords_valid(x, y)) {
@@ -153,10 +163,20 @@ uint8_t Minefield::mines_around(uint8_t x, uint8_t y) {
 
 void Minefield::open_around(uint8_t x, uint8_t y) {
     do_around(x, y, [&](uint8_t xc, uint8_t yc) {
-        anon_send(this, open_atom::value, xc, yc);
+        ++state.deferred_opening;
+        anon_send(this, open_atom::value, false, xc, yc);
     });
 }
 
 bool Minefield::coords_valid(uint8_t x, uint8_t y) {
-    return (x >= 0 && x < state.width && y >= 0 && y <= state.height);
+    return (x >= 0 && x < state.width && y >= 0 && y < state.height);
+}
+
+void Minefield::dec_deferred_opening() {
+    if (state.deferred_opening) {
+        --state.deferred_opening;
+    }
+    if (!state.deferred_opening) {
+        send(this, dump_atom::value, false);
+    }
 }

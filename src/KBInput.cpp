@@ -42,7 +42,7 @@ kb_input_actor_t::behavior_type KBInput::make_behavior() {
                     send(m_field, flag_atom::value, x, y);
                     return minefield_result::ok;
                 } else {
-                    return delegate(m_field, open_atom::value, x, y);
+                    return delegate(m_field, open_atom::value, true, x, y);
                 }
             } catch (const invalid_argument& e) {
                 aout(this) << "Error parsing input." << endl;

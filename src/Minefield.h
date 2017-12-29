@@ -31,7 +31,7 @@ using flag_atom = caf::atom_constant<caf::atom("flag")>;
 using minefield_error_atom = caf::atom_constant<caf::atom("mferr")>;
 
 using minefield_actor_t = caf::typed_actor<caf::reacts_to<init_atom, uint8_t, uint8_t, uint8_t>,
-caf::replies_to<open_atom, uint8_t, uint8_t>::with<minefield_result>,
+caf::replies_to<open_atom, bool, uint8_t, uint8_t>::with<minefield_result>,
 caf::reacts_to<dump_atom, bool>,
 caf::reacts_to<flag_atom, uint8_t, uint8_t>>;
 
@@ -46,7 +46,9 @@ struct field_t {
     std::vector<Mine> field;
     uint8_t width = 0;
     uint8_t height = 0;
-    uint16_t cnt = 0;
+    uint16_t empty_cells = 0;
+    uint16_t deferred_opening = 0;
+    bool first_move = false;
 };
 
 class Minefield: public minefield_actor_t::stateful_base<field_t> {
@@ -67,6 +69,7 @@ private:
     uint8_t mines_around(uint8_t x, uint8_t y);
     void open_around(uint8_t x, uint8_t y);
     inline bool coords_valid(uint8_t x, uint8_t y);
+    void dec_deferred_opening();
 };
 
 #endif /* MINEFIELD_H_ */

@@ -41,7 +41,9 @@ int main(int argc, char* argv[]) {
         mines = vm["mines"].as<int>();
     }
     actor_system_config conf;
-    conf.add_error_category<minefield_error>(minefield_error_atom::value);
+    conf.add_error_category(minefield_error_atom::value, [=](uint8_t val, atom_value av, const message&) {
+        return to_string(static_cast<minefield_error>(val));
+    });
     actor_system system(conf);
     auto field = system.spawn<Minefield>();
     auto input = system.spawn<KBInput>(field);
@@ -52,7 +54,7 @@ int main(int argc, char* argv[]) {
     string i;
     while (!exit) {
         cin >> i;
-        self->request(input, 1s, kb_input_atom::value, i).receive([&](minefield_result r) {
+        self->request(input, infinite, kb_input_atom::value, i).receive([&](minefield_result r) {
             if (r != minefield_result::ok) {
                 exit = true;
             }
