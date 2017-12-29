@@ -16,6 +16,15 @@ error make_error(input_error x) {
     return {static_cast<uint8_t>(x), input_error_atom::value};
 }
 
+string to_string(input_error x) {
+    switch (x) {
+    case input_error::invalid:
+        return "invalid input";
+    default:
+        return "<unknown>";
+    }
+}
+
 KBInput::KBInput(caf::actor_config& cfg, minefield_actor_t field) :
         kb_input_actor_t::base(cfg), m_field(field) {
 }
@@ -45,7 +54,6 @@ kb_input_actor_t::behavior_type KBInput::make_behavior() {
                     return delegate(m_field, open_atom::value, true, x, y);
                 }
             } catch (const invalid_argument& e) {
-                aout(this) << "Error parsing input." << endl;
                 return input_error::invalid;
             }
         }

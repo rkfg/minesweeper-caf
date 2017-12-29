@@ -21,6 +21,8 @@ enum class input_error
 using kb_input_atom = caf::atom_constant<caf::atom("inp")>;
 using kb_input_actor_t = caf::typed_actor<caf::replies_to<kb_input_atom, std::string>::with<minefield_result>>;
 
+std::string to_string(input_error x);
+
 class KBInput: public kb_input_actor_t::base {
 public:
     KBInput(caf::actor_config& cfg, minefield_actor_t field);

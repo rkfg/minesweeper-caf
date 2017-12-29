@@ -11,6 +11,11 @@ using namespace caf;
 using namespace std;
 namespace po = boost::program_options;
 
+template<class T>
+string renderer(uint8_t val, atom_value av, const message&) {
+    return to_string(static_cast<T>(val));
+}
+
 int main(int argc, char* argv[]) {
     po::options_description od("Allowed options");
     od.add_options()("help", "Show this help")("width,w", po::value<int>(), "Width")("height,h", po::value<int>(),
@@ -41,9 +46,8 @@ int main(int argc, char* argv[]) {
         mines = vm["mines"].as<int>();
     }
     actor_system_config conf;
-    conf.add_error_category(minefield_error_atom::value, [=](uint8_t val, atom_value av, const message&) {
-        return to_string(static_cast<minefield_error>(val));
-    });
+    conf.add_error_category(minefield_error_atom::value, &renderer<minefield_error>);
+    conf.add_error_category(input_error_atom::value, &renderer<input_error>);
     actor_system system(conf);
     auto field = system.spawn<Minefield>();
     auto input = system.spawn<KBInput>(field);
