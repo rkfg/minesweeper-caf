@@ -145,6 +145,10 @@ void Minefield::dump_minefield(const bool full) {
 #endif
     }
     aout(this) << endl << endl;
+    if (!full) {
+        aout(this) << "Enter cell coords: ";
+    }
+    aout(this).flush();
 }
 
 void Minefield::do_around(uint8_t x, uint8_t y, std::function<void(uint8_t, uint8_t)> f) {

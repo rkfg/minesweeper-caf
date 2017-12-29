@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
             }
         }, [&](error x) {
             aout(self) << "Error: " << system.render(x) << endl;
+            self->send(field, dump_atom::value, false);
         });
     }
     self->send_exit(input, exit_reason::user_shutdown);
