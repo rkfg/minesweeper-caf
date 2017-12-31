@@ -132,17 +132,13 @@ void Minefield::dump_minefield(const bool full) {
             } else {
                 aout(this) << CLOSED;
             }
-#ifdef SEPARATOR
             aout(this) << SEPARATOR;
-#endif
         }
         aout(this) << " " << y + 1 << endl;
     }
     for (int x = 0; x < state.width; ++x) {
         aout(this) << m_xaxis[x];
-#ifdef SEPARATOR
         aout(this) << SEPARATOR;
-#endif
     }
     aout(this) << endl << endl;
     if (!full) {

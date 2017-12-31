@@ -62,20 +62,21 @@ private:
     const std::string m_mnums[8] {"1", "2", "3", "4", "5", "6", "7", "8"};
     const std::string m_xaxis[26] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
         "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-#define MINE "X"
-#define OPENED "."
-#define FLAG "F"
-#define CLOSED "_"
-#define SEPARATOR " "
+    const std::string MINE = "X";
+    const std::string OPENED = ".";
+    const std::string FLAG = "F";
+    const std::string CLOSED = "_";
+    const std::string SEPARATOR = " ";
 #else
     const std::string m_mnums[8] { "\uff11", "\uff12", "\uff13", "\uff14", "\uff15", "\uff16", "\uff17", "\uff18" };
     const std::string m_xaxis[26] { "\uff21", "\uff22", "\uff23", "\uff24", "\uff25", "\uff26", "\uff27", "\uff28",
             "\uff29", "\uff2a", "\uff2b", "\uff2c", "\uff2d", "\uff2e", "\uff2f", "\uff30", "\uff31", "\uff32",
             "\uff33", "\uff34", "\uff35", "\uff36", "\uff37", "\uff38", "\uff39", "\uff3a" };
-#define MINE "\uff38"
-#define OPENED "\uff0e"
-#define FLAG "\uff26"
-#define CLOSED "\uff3f"
+    const std::string MINE = "\uff38";
+    const std::string OPENED = "\uff0e";
+    const std::string FLAG = "\uff26";
+    const std::string CLOSED = "\uff3f";
+    const std::string SEPARATOR = "";
 #endif
     Mine& get_mine(uint8_t x, uint8_t y);
     void dump_minefield(const bool full = false);
